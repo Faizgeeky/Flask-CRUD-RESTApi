@@ -6,7 +6,6 @@ from extensions import db
 from api.model import Sensor
 from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError 
-# from sqlalchemy import and_
 import pandas as pd
 sensor_schema = SensorSchema(many=True)
 
@@ -44,43 +43,64 @@ class SensorDataAPI(MethodView):
 
     def get(self, id=None):
         if id is None:
-            sensor_data = Sensor.query.filter().all()
-            sensor_data = sensor_schema.dump(sensor_data)
-            return jsonify(sensor_data)
-        else:
-            try:
-                json_data = request.args
-                page = int(request.args.get('page', 1))
-                per_page = int(request.args.get('per_page', 10))
-                aggregate = request.args.get('aggregate')
-                # Handle dynamic args to filter
-                filters = self.filter_sensor_Data(json_data)
-                # retured filterd sqlalchemy obj 
-                query = Sensor.query.filter(*filters)
-                df = pd.DataFrame(query)
-                print("Data", df)
-                if aggregate:
-                    if aggregate == 'hourly':
-                        query = query.with_entities(
-                            Sensor.sensor_id,
-                            db.func.strftime('%Y-%m-%d %H:00:00', Sensor.timestamp).label('timestamp'),
-                            db.func.avg(Sensor.temperature).label('temperature'),
-                            db.func.avg(Sensor.humidity).label('humidity'),
-                            db.func.avg(Sensor.pressure).label('pressure')
-                        ).group_by('sensor_id', 'timestamp')
-                    elif aggregate == 'daily':
-                        query = query.with_entities(
-                            Sensor.sensor_id,
-                            db.func.strftime('%Y-%m-%d', Sensor.timestamp).label('timestamp'),
-                            db.func.avg(Sensor.temperature).label('temperature'),
-                            db.func.avg(Sensor.humidity).label('humidity'),
-                            db.func.avg(Sensor.pressure).label('pressure')
-                        ).group_by('sensor_id', 'timestamp')
-                # use pagination dynamic with oage number
-                pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-                
-                sensor_data = pagination.items
-                result = sensor_schema.dump(sensor_data)
+            json_data = request.args
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 10))
+            aggregate = request.args.get('aggregate')
+            # Handle dynamic args to filter
+            filters = self.filter_sensor_Data(json_data)
+            # retured filterd sqlalchemy obj 
+            query = Sensor.query.filter(*filters)
+            
+            
+            pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+            
+            sensor_data = pagination.items
+            result = sensor_schema.dump(sensor_data)
+            df = pd.DataFrame(result)
+
+            def aggregration(df, aggregate_type):
+                print("types are", aggregate_type)
+                # applyiung aggregation
+                if 'hourly' in aggregate_type and 'daily' in aggregate_type:
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    print("Dataframe is", df)
+                    df = df[['timestamp','temperature','humidity', 'pressure']]
+                    df_hour = df.groupby(df['timestamp'].dt.hour).mean()
+                    df_day = df.groupby(df['timestamp'].dt.day).mean()
+
+                    hourly_data = df_hour.to_dict(orient='records')
+                    daily_data = df_day.to_dict(orient='records')
+
+                    return {'daily_avg':daily_data,'hourly_avg':hourly_data}
+
+                elif 'hourly' in aggregate_type:
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    df = df[['timestamp','temperature','humidity', 'pressure']]
+                    df_hour = df.groupby(df['timestamp'].dt.hour).mean()
+                    
+                    print("Datafrane mean is ", df_hour)
+                    hourly_data = df_hour.to_dict(orient='records')
+
+                    return {'hourly_avg':hourly_data}
+
+                elif 'daily' in aggregate_type:
+                    df['timestamp'] = pd.to_datetime(df['timestamp'])
+                    df = df[['timestamp','temperature','humidity', 'pressure']]
+                    df_day = df.groupby(df['timestamp'].dt.day).mean()
+                    daily_data = df_day.to_dict(orient='records')
+
+                    # Return as JSON response
+                    return {'daily_avg':daily_data}
+
+            # If aggregation requested return aggregate data only
+            if aggregate != None:
+                result = aggregration(df, aggregate)
+                return jsonify({
+                        'aggregate': result,
+                    }), HTTPStatus.OK
+            # else return all sensor data
+            else:
                 return jsonify({
                     "data": result,
                     "pagination": {
@@ -92,6 +112,76 @@ class SensorDataAPI(MethodView):
                         "per_page": pagination.per_page
                     }
                 }), HTTPStatus.OK
+        else:
+            try:
+                json_data = request.args
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 10))
+                aggregate = request.args.get('aggregate')
+                # Handle dynamic args to filter
+                filters = self.filter_sensor_Data(json_data)
+                # retured filterd sqlalchemy obj 
+                query = Sensor.query.filter(*filters)
+                
+                
+                pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+                
+                sensor_data = pagination.items
+                result = sensor_schema.dump(sensor_data)
+                df = pd.DataFrame(result)
+
+                def aggregration(df, aggregate_type):
+                    print("types are", aggregate_type)
+                    # applyiung aggregation
+                    if 'hourly' in aggregate_type and 'daily' in aggregate_type:
+                        df['timestamp'] = pd.to_datetime(df['timestamp'])
+                        df = df[['timestamp','temperature','humidity', 'pressure']]
+                        df_hour = df.groupby(df['timestamp'].dt.hour).mean()
+                        df_day = df.groupby(df['timestamp'].dt.day).mean()
+
+                        hourly_data = df_hour.to_dict(orient='records')
+                        daily_data = df_day.to_dict(orient='records')
+
+                        return {'daily_avg':daily_data,'hourly_avg':hourly_data}
+
+                    elif 'hourly' in aggregate_type:
+                        df['timestamp'] = pd.to_datetime(df['timestamp'])
+                        df = df[['timestamp','temperature','humidity', 'pressure']]
+                        df_hour = df.groupby(df['timestamp'].dt.hour).mean()
+                        
+                        print("Datafrane mean is ", df_hour)
+                        hourly_data = df_hour.to_dict(orient='records')
+
+                        return {'hourly_avg':hourly_data}
+
+                    elif 'daily' in aggregate_type:
+                        df['timestamp'] = pd.to_datetime(df['timestamp'])
+                        df = df[['timestamp','temperature','humidity', 'pressure']]
+                        df_day = df.groupby(df['timestamp'].dt.day).mean()
+                        daily_data = df_day.to_dict(orient='records')
+
+                        # Return as JSON response
+                        return {'daily_avg':daily_data}
+
+                # If aggregation requested return aggregate data only
+                if aggregate != None:
+                    result = aggregration(df, aggregate)
+                    return jsonify({
+                            'aggregate': result,
+                        }), HTTPStatus.OK
+                # else return all sensor data
+                else:
+                    return jsonify({
+                        "data": result,
+                        "pagination": {
+                            "total": pagination.total,
+                            "pages": pagination.pages,
+                            "current_page": pagination.page,
+                            "next_page": pagination.next_num,
+                            "prev_page": pagination.prev_num,
+                            "per_page": pagination.per_page
+                        }
+                    }), HTTPStatus.OK
 
             except Exception as e:
                 return jsonify({'error':str(e)}) , HTTPStatus.INTERNAL_SERVER_ERROR

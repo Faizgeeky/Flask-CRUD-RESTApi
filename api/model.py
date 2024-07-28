@@ -18,7 +18,7 @@ class User(db.Model):
 
 class Sensor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    sensor_id = db.Column(db.String, unique=True, nullable=False)
+    sensor_id = db.Column(db.String, nullable=False)
     timestamp = db.Column(db.DateTime , nullable=False)
     temperature = db.Column(db.Float, nullable=False)
     humidity = db.Column(db.Float, nullable=False)
