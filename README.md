@@ -38,7 +38,7 @@ cd CoulombAI-Task
     export FLASK_DEBUG=1
     ```
 3. Config env variable [Currently it is defined in confg.py that can be use din env var]
- ```sh
+     ```sh
     export SECRET_KEY = 'jkbkjbvc-bkjbjkb-jka-kjbjkbkbda'
     export JWT_SECRET_KEY = 'kjbjkaebk-kjbjba-kjbajb'  
     ```
