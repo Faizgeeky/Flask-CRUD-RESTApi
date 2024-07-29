@@ -91,13 +91,13 @@ A `CoulombAI.postman_collection.json` file is included for easy testing of the A
 
 ## NOTE
 
-* There are some filters might be missing in collection but you can add in filter 
-for example
- ```sh
+# There are some filters might be missing in collection but you can add in filters  for example 
+ ```
+```sh
  /v1/data/?sensor_id=1&start_date=2022-01
 
     //  You can pass many filters here as per task like start_date, end_date, aggregate =['hourly','daily'] , pressure, temperature
- ```
+```
 
 ### Enhancement 
 1. Handling large data injest asynly while storing 
