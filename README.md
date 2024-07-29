@@ -5,10 +5,9 @@
 ###  Features
 
 - **Authentication**: Users can log in using JWT (JSON Web Tokens) for secure authentication.
-- **Send Interest**: Users can send interest requests to other users.
-- **Accept/Reject Interest**: Users can accept or reject interest requests.
-- **Real-time Chat**: Users can chat in real time with users who have accepted their interest.
-- **Dashboard**: View and manage pending and accepted users from a dashboard.
+- **Inject Sensor data**: Authenticate user can inject data in batch.
+- **Filter and Update**: Sensor data can be fetched by filtering parameters.
+- **Analysys**: Get informative insignts from sensor data using analysis api.
 
 
 
