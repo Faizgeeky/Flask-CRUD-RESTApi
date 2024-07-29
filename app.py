@@ -9,10 +9,7 @@ def create_app():
 
     ## Initialize Config
     app.config.from_object(Config)
-    app.config['SWAGGER'] = {
-    'title': 'Sensor API',
-    'uiversion': 3
-}
+    
     
     db.init_app(app)
     jwt.init_app(app)

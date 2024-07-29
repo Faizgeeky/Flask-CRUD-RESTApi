@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask.views import MethodView
 # keeping seprate schema for different payload 
 from api.schema.sensor import SensorSchema 
@@ -8,9 +8,13 @@ from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError 
 from sqlalchemy import func, extract,text
 import pandas as pd
-
+from functools import wraps
+import jwt
+from api.model import User
+from .auth import auth_required
 import json
 sensor_schema = SensorSchema(many=True)
+
 
 def aggregation( df, aggregate_type):
         # applying aggregation
@@ -253,6 +257,7 @@ class SensorDataAPI(MethodView):
                 return jsonify({'error':str(e)}) , HTTPStatus.INTERNAL_SERVER_ERROR
 
     # Handle post req
+    # @auth_required
     def post(self):
         try:
             json_data = request.get_json()

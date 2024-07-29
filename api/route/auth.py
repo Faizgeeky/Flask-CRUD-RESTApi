@@ -1,13 +1,14 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 # keeping seprate schema for different payload 
 from api.schema.user import UserSchema , UserLoginSchema
-from extensions import db, jwt
+from extensions import db
 from flask_jwt_extended import create_access_token
 from api.model import User
 from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError
 from marshmallow import ValidationError
-
+from functools import wraps
+import jwt
 # create blueprint route
 auth_bp = Blueprint('auth',__name__)
 
@@ -52,7 +53,7 @@ def login():
         if user is None or user.check_password(json_data['password']) is False:
             return jsonify({"error": "Invalid email or password"}), HTTPStatus.UNAUTHORIZED
         
-        access_token =  create_access_token(identity= user.id)
+        access_token =  jwt.encode({"user_id": user.id},current_app.config["SECRET_KEY"],algorithm="HS256")
         
         return jsonify({"access_token": access_token}), HTTPStatus.OK
 
@@ -61,3 +62,34 @@ def login():
 
     except Exception as e:
         return jsonify({"message":"Invalid Request",'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+# create authenticator decorator
+
+def auth_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            token = request.headers['Authorization']
+        
+        if not token:
+            return jsonify({'message': 'Authentication Required!', "data": None, "error": "Unauthorised"}), 401
+        
+        if token.startswith('Bearer '):
+            token = token.split(' ')[1]
+        try:
+            print(current_app.config['SECRET_KEY'])
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
+            print("Data is ", data)
+            
+            loggedIn_user = User.query.filter_by(id=data['user_id']).first()
+            if loggedIn_user is None:
+                return jsonify({'message': 'Invalid Auth Token', "data": None, "error": "Unauthorised"}), 401
+            print(" are we here at?")
+            
+        
+        except Exception as e:
+            return jsonify({'message': 'Something went wrong', "data": None, "error": str(e)}), 500
+        return f(*args, **kwargs)
+    return decorated
