@@ -6,13 +6,8 @@ from extensions import db
 from api.model import Sensor
 from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError 
-from sqlalchemy import func, extract,text
+from sqlalchemy import func
 import pandas as pd
-from functools import wraps
-import jwt
-from api.model import User
-from .auth import auth_required
-import json
 sensor_schema = SensorSchema(many=True)
 
 
@@ -167,22 +162,23 @@ class SensorDataAPI(MethodView):
                 if aggregate:
                     query = self.aggregate_sensor_query(query,aggregate)
 
-                result = sensor_schema.dump(query)
-                pagination = query.paginate(page=1, per_page=10, error_out=True)
-                sensor_data = pagination.items
+                # add pagination
+                paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+                # deserialize data
+                result = sensor_schema.dump(paginated_data.items)
+                
                 return jsonify({
                     "data": result,
-                    # "pagination": {
-                    #     "total": pagination.total,
-                    #     "pages": pagination.pages,
-                    #     "current_page": pagination.page,
-                    #     "next_page": pagination.next_num,
-                    #     "prev_page": pagination.prev_num,
-                    #     "per_page": pagination.per_page
-                    # }
+                    "pagination": {
+                        "total": paginated_data.total,
+                        "pages": paginated_data.pages,
+                        "current_page": paginated_data.page,
+                        "next_page": paginated_data.next_num,
+                        "prev_page": paginated_data.prev_num,
+                        "per_page": paginated_data.per_page
+                    }
                 }), HTTPStatus.OK
             else:
-                # print("id is", id)
                 try:
                     json_data = request.args
                     page = int(request.args.get('page', 1))
@@ -195,21 +191,22 @@ class SensorDataAPI(MethodView):
                     aggregate = request.args.get('aggregate')
                     if aggregate:
                         query = self.aggregate_sensor_query(query,aggregate)
-                    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
-                    sensor_data = pagination.items
-                    result = sensor_schema.dump(sensor_data)
-
+                    
+                    # add pagination
+                    paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+                    # deserialize data
+                    result = sensor_schema.dump(paginated_data.items)
                     if len(result)>0:
                         return jsonify({
                             "data": result,
-                            # "pagination": {
-                            #     "total": pagination.total,
-                            #     "pages": pagination.pages,
-                            #     "current_page": pagination.page,
-                            #     "next_page": pagination.next_num,
-                            #     "prev_page": pagination.prev_num,
-                            #     "per_page": pagination.per_page
-                            # }
+                            "pagination": {
+                                "total": paginated_data.total,
+                                "pages": paginated_data.pages,
+                                "current_page": paginated_data.page,
+                                "next_page": paginated_data.next_num,
+                                "prev_page": paginated_data.prev_num,
+                                "per_page": paginated_data.per_page
+                            }
                         }), HTTPStatus.OK
                     else:
                         return jsonify({'data':[],'message':'no data found'}) , HTTPStatus.OK
@@ -269,16 +266,40 @@ class SensorDataAPI(MethodView):
             except Exception as e:
                 return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
 
-
+# Can be enhanced with more features like to predictive , avg, history , graph , sorting , etc
 class SensorAnalysisAPI(MethodView):
     def get(self):
         try:
-            print("reached here")
             # data = aggregation)
-            sensor_data = Sensor.query.all()
+            json_data = request.args
+            # check for date filters 
+            filters = []
+            if json_data.get('start_date', type=str):
+                filters.append(Sensor.timestamp >= json_data.get('start_date', type=str ))
+            if json_data.get('end_date',type=str):
+                filters.append(Sensor.timestamp <= json_data.get('end_date', type=str))
+            if filters:
+                paginated_data = Sensor.query.filter(*filters).paginate(page=1, per_page=2, error_out=False)
+                sensor_data = paginated_data.items
+            else:
+                paginated_data = Sensor.query.paginate(page=1, per_page=2, error_out=False)
+                sensor_data = paginated_data.items
             data = sensor_schema.dump(sensor_data)
             sensor_data = aggregation(pd.DataFrame(data), aggregate_type=['daily','hourly','yearly'])
-            print("Sensor data", sensor_data)
-            return jsonify({'data':sensor_data}), HTTPStatus.OK
+
+            pagination = {
+                    "current_page": paginated_data.page,
+                    "next_page": paginated_data.next_num if paginated_data.has_next else None,
+                    "prev_page": paginated_data.prev_num if paginated_data.has_prev else None,
+                    "pages": paginated_data.pages,
+                    "per_page": paginated_data.per_page,
+                    "total": paginated_data.total
+                }
+            
+            return jsonify({
+                'data': sensor_data,
+                'pagination': pagination
+                }), HTTPStatus.OK
+
         except Exception as e:
             return jsonify({"message":"Internal error!"}), HTTPStatus.INTERNAL_SERVER_ERROR
