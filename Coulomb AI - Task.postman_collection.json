@@ -1,0 +1,260 @@
+{
+	"info": {
+		"_postman_id": "09fa845f-5a28-4b73-a223-e681f9b64c9b",
+		"name": "Coulomb AI - Task",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34034144"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"Messi\",\n    \"email\":\"messi@mail.com\",\n    \"password\":\"Password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/auth/register",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"messi@mail.com\",\n    \"password\":\"Password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/auth/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Filter Sensor data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyfQ.EI9ovHhg_rKaJay-eqPvncxF1f781gzvlTQ8zxVbo9c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/v1/data/sensor_3?page=1&per_page=10",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"v1",
+						"data",
+						"sensor_3"
+					],
+					"query": [
+						{
+							"key": "aggregate",
+							"value": "['daily','hourly']",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "per_page",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Sensor data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcyMjI2ODY0MywianRpIjoiMmIxODY3YjgtMzdhZS00MTRmLWI2OWYtYTE3OWUyNWY2ZmIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MiwibmJmIjoxNzIyMjY4NjQzLCJjc3JmIjoiNjg4MjQ2ZjYtN2VmYS00NmNjLWJmNTAtMTFiZDc0MzY3MDdhIiwiZXhwIjoxNzIyMjY4NjU4fQ.5KKGMSCFXgwhSw_DCapMlLc5B4AtBqCqzzWCROJSwEA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"sensor_id\": \"sensor_3\",\n        \"timestamp\": \"2022-09-20T17:30:00\",\n        \"humidity\": 49.5,\n        \"pressure\": 383.25,\n        \"temperature\": 22.2\n    },\n     {\n        \"sensor_id\": \"sensor_3\",\n        \"timestamp\": \"2022-09-21T17:30:00\",\n        \"humidity\": 4.5,\n        \"pressure\": 873.25,\n        \"temperature\": 77\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/v1/data/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"v1",
+						"data",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Sensor Data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcyMjI2ODY5OCwianRpIjoiOTRkMTBkNWMtOTIzNS00YmY2LWI3ZjgtNjE0MGJlN2NhZWE0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MiwibmJmIjoxNzIyMjY4Njk4LCJjc3JmIjoiMjY2NjI3ZDktZmQ1OC00M2YzLWE2YjItZDNmM2E1MjllODEzIiwiZXhwIjoxNzIyMjY5NTk4fQ.pDHDmWahVRAE1IGytkKYpEbSxsNKFauGMmumofdI8ek",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/v1/data/1?pressure=385.8",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"v1",
+						"data",
+						"1"
+					],
+					"query": [
+						{
+							"key": "pressure",
+							"value": "385.8"
+						},
+						{
+							"key": "temperature",
+							"value": "26.5",
+							"disabled": true
+						},
+						{
+							"key": "humidity",
+							"value": "9",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sensor data Analysis",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcyMjI2ODY5OCwianRpIjoiOTRkMTBkNWMtOTIzNS00YmY2LWI3ZjgtNjE0MGJlN2NhZWE0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MiwibmJmIjoxNzIyMjY4Njk4LCJjc3JmIjoiMjY2NjI3ZDktZmQ1OC00M2YzLWE2YjItZDNmM2E1MjllODEzIiwiZXhwIjoxNzIyMjY5NTk4fQ.pDHDmWahVRAE1IGytkKYpEbSxsNKFauGMmumofdI8ek",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/v1/data/aggregate?start_date=2022-07-01T00:00:00&end_date=2024-07-01T00:00:00",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"v1",
+						"data",
+						"aggregate"
+					],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2022-07-01T00:00:00"
+						},
+						{
+							"key": "end_date",
+							"value": "2024-07-01T00:00:00"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -21,7 +21,7 @@ def aggregation( df, aggregate_type):
             df = df[['timestamp','temperature','humidity', 'pressure']]
             df_year = df.groupby(df['timestamp'].dt.year).mean().round(2)
             
-            print("Datafrane mean is ", df_year)
+            # print("Datafrane mean is ", df_year)
             yearly_data = df_year.to_dict(orient='records')
 
             json_data['yearly_avg'] = yearly_data
@@ -31,7 +31,7 @@ def aggregation( df, aggregate_type):
             df = df[['timestamp','temperature','humidity', 'pressure']]
             df_hour = df.groupby(df['timestamp'].dt.hour).mean().round(2)
             
-            print("Datafrane mean is ", df_hour)
+            # print("Datafrane mean is ", df_hour)
             hourly_data = df_hour.to_dict(orient='records')
 
             json_data['hourly_avg'] = hourly_data
