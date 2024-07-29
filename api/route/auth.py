@@ -79,14 +79,12 @@ def auth_required(f):
         if token.startswith('Bearer '):
             token = token.split(' ')[1]
         try:
-            print(current_app.config['SECRET_KEY'])
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
-            print("Data is ", data)
+            
             
             loggedIn_user = User.query.filter_by(id=data['user_id']).first()
             if loggedIn_user is None:
                 return jsonify({'message': 'Invalid Auth Token', "data": None, "error": "Unauthorised"}), 401
-            print(" are we here at?")
             
         
         except Exception as e:
