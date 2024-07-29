@@ -2,7 +2,8 @@ from flask import Flask
 from api.route.auth import auth_bp
 from api.route.sensor import sensor_bp
 from config import Config
-from extensions import db, jwt, ma, swagger
+from extensions import db, jwt, ma
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
@@ -14,7 +15,6 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     ma.init_app(app)
-    swagger.init_app(app)
 
 
     # register all blueprint's

@@ -8,6 +8,8 @@ from http import HTTPStatus
 from sqlalchemy.exc import IntegrityError 
 from sqlalchemy import func
 import pandas as pd
+from flask_jwt_extended import jwt_required
+
 sensor_schema = SensorSchema(many=True)
 
 
@@ -145,6 +147,7 @@ class SensorDataAPI(MethodView):
 
         return query
     
+    @jwt_required()
     def get(self, sensor_id=None):
         try:
             if sensor_id is None:
@@ -216,6 +219,7 @@ class SensorDataAPI(MethodView):
         except Exception as e:
             return jsonify({'message':'Internal error','error':str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
     
+    @jwt_required()
     def post(self):
         try:
             json_data = request.get_json()
@@ -233,6 +237,7 @@ class SensorDataAPI(MethodView):
             db.session.rollback()
             return jsonify({"message": "Invalid request", "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
             
+    @jwt_required()
     def put(self, id):
         # override sensor_schema many to false as we only working with 1 entry here
         sensor_schema = SensorSchema(many=False)
@@ -267,7 +272,9 @@ class SensorDataAPI(MethodView):
                 return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 # Can be enhanced with more features like to predictive , avg, history , graph , sorting , etc
+
 class SensorAnalysisAPI(MethodView):
+    @jwt_required()
     def get(self):
         try:
             # data = aggregation)
