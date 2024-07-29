@@ -60,7 +60,7 @@ cd CoulombAI-Task
     /v1/data/<sensor_id> // Retrive Sensor data by sensor_id
     /v1/data/<id> // PUT update sensor data
     /v1/data/aggregate // GET - all you want to know about sensor data
-    ``` 
+ ``` 
 
 ### Postman Collection
 
