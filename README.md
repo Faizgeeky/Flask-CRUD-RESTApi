@@ -67,7 +67,7 @@ cd CoulombAI-Task
 A `CoulombAI.postman_collection.json` file is included for easy testing of the API endpoints with Postman. Simply import this file into Postman to get started.
 
 ### File strcuture
-
+```sh
   |-app.py  (entry point and regiterd all blueprints)
   |-config.py  (configurations and env variables - can be stored in env for better security)
   |-requirements.txt  
@@ -83,7 +83,7 @@ A `CoulombAI.postman_collection.json` file is included for easy testing of the A
      |-schema (used marsmallow seriaizers)
         |- user.py
         |-sensor.py
-    
+```    
 ### API Postman collection
 
 * It has all the api's endpoint with request and response
