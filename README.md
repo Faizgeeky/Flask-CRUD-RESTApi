@@ -62,6 +62,20 @@ cd CoulombAI-Task
     /v1/data/aggregate // GET - all you want to know about sensor data
  ``` 
 
+###   🚀🚀 Test all API's using pytest
+
+5. Run flask server:
+    ```sh
+    pytest -s 
+    ```
+    ```sh
+    pytest 
+    ```
+    ```sh
+    pytest {filename}
+    ```
+
+
 ### Postman Collection
 
 A `CoulombAI.postman_collection.json` file is included for easy testing of the API endpoints with Postman. Simply import this file into Postman to get started.

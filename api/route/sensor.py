@@ -11,7 +11,7 @@ sensor_bp.add_url_rule('/data/aggregate', view_func=analysis_api, methods=['GET'
 # Using api view is simpler to maintain single class for every individual route
 data_view = SensorDataAPI.as_view('data_api')
 # add in batch and fetch all data
-sensor_bp.add_url_rule('/data/', view_func=data_view, methods=['GET','POST'])
+sensor_bp.add_url_rule('/data', view_func=data_view, methods=['GET','POST'])
 # fetch by sensor id
 sensor_bp.add_url_rule('/data/<string:sensor_id>', view_func=data_view, methods=['GET'])
 # update by id

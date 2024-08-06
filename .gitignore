@@ -1,2 +1,12 @@
 .env
 /emv
+
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore pytest cache
+.pytest_cache/

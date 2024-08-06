@@ -79,28 +79,7 @@ class SensorDataAPI(MethodView):
         # return sql filtered obj
         return filters
     
-    def aggregate_sensor_data(self, filters, group_by_field, average_fields):
-        query = self.filter_sensor_data(filters)
-
-        # Apply aggregation
-        aggregates = {
-            'average_temperature': func.avg(Sensor.temperature),
-            'average_pressure': func.avg(Sensor.pressure),
-            'average_humidity': func.avg(Sensor.humidity)
-        }
-
-        # Select required fields and apply aggregation
-        query = query.with_entities(
-            Sensor.sensor_id,
-            func.date_trunc(group_by_field, Sensor.timestamp).label('period'),
-            *[aggregate for aggregate in aggregates.values()]
-        ).group_by(
-            Sensor.sensor_id,
-            func.date_trunc(group_by_field, Sensor.timestamp)
-        )
-
-        return query
-
+    
     def aggregate_sensor_query(self,query, aggregate):
         
         common_entities = [
@@ -139,12 +118,22 @@ class SensorDataAPI(MethodView):
                 Sensor.sensor_id,
                 func.extract('day', Sensor.timestamp)
             ]
+        elif 'monthly' in aggregate:
+            entities = common_entities + [
+                func.extract('month', Sensor.timestamp).label('month')
+            ]
+            group_by = [
+                Sensor.sensor_id,
+                func.extract('day', Sensor.timestamp)
+            ]
         else:
             raise ValueError("Invalid aggregation type")
+        
+        # print("Entities and groupby")
 
         # Construct the query with entities, grouping, and ordering
         query = query.with_entities(*entities).group_by(*group_by).order_by(Sensor.sensor_id)
-
+        # print("query", query)
         return query
     
     @jwt_required()
@@ -156,6 +145,7 @@ class SensorDataAPI(MethodView):
                 per_page = int(request.args.get('per_page', 10))
                 offset = (page - 1) * per_page
                 
+                print("Aggre type", request.args.get('aggregate'))
                 # Handle dynamic args to filter
                 filters = self.filter_sensor_Data(json_data)
                 # retured filterd sqlalchemy obj 
@@ -230,9 +220,6 @@ class SensorDataAPI(MethodView):
             result = sensor_schema.dump(sensor_data)
             return jsonify({"message": "Data created successfully", "data": result}), HTTPStatus.CREATED
         
-        except IntegrityError as e:
-            db.session.rollback()
-            return jsonify({"message": "Invalid request", "error": "A sensor with the same sensor_id already exists."}), HTTPStatus.CONFLICT
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": "Invalid request", "error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
@@ -263,16 +250,15 @@ class SensorDataAPI(MethodView):
                     sensor_data = Sensor.query.filter(Sensor.id == int(id)).first()
                     
                 if sensor_data is None:
-                    return jsonify({"message": "Sensor data not found"}), HTTPStatus.NOT_FOUND
+                    return jsonify({"message": "Data not found"}), HTTPStatus.NOT_FOUND
                 
                 sensor_data_serialized = sensor_schema.dump(sensor_data)
-                return jsonify({"data": sensor_data_serialized}), HTTPStatus.OK
+                return jsonify({"data": sensor_data_serialized, "message":"Data updated successfully"}), 201
                 
             except Exception as e:
                 return jsonify({"error": str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
 
 # Can be enhanced with more features like to predictive , avg, history , graph , sorting , etc
-
 class SensorAnalysisAPI(MethodView):
     @jwt_required()
     def get(self):
