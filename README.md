@@ -64,7 +64,7 @@ cd CoulombAI-Task
 
 ###   🚀🚀 Test all API's using pytest
 
-5. Run flask server:
+5. Run API testing :
     ```sh
     pytest -s 
     ```
