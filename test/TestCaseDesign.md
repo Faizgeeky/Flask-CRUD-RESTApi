@@ -252,10 +252,10 @@
   - Method: `PUT`
   - Params:
     ```json
-    params = {
+     {
         "humidity":122,
         "temperature" :32,
-        "pressure" :232" 
+        "pressure" :232
     }
     ```
 
