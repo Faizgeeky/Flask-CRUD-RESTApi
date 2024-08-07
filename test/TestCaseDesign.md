@@ -180,13 +180,13 @@
       "per_page": 10,
       "page": 1,
       "start_time": "2022-08-20T17:30:00",
-      'end_time': '2022-09-21T23:59:59',
-      'min_humidity': 40,
-      'max_humidity': 60,
-      'min_pressure': 380,
-      'max_pressure': 400,
-      'min_temperature': 20.0,
-      'max_temperature': 30.0
+      "end_time": "2022-09-21T23:59:59",
+      "min_humidity": 40,
+      "max_humidity": 60,
+      "min_pressure": 380,
+      "max_pressure": 400,
+      "min_temperature": 20.0,
+      "max_temperature": 30.0
     }
     ```
     (additional optional parameters can be uncommented and included as needed)
@@ -253,9 +253,9 @@
   - Params:
     ```json
     params = {
-        'humidity':'122',
-        'temperature' :'32',
-        'pressure' :'232' 
+        "humidity":122,
+        "temperature" :32,
+        "pressure" :232" 
     }
     ```
 
