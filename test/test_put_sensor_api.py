@@ -5,34 +5,14 @@ def test_update_sensor_data(test_client, auth_token):
     headers = {
         'Authorization': f'Bearer {auth_token}'
     }
-    response = test_client.post('/v1/data', json=[
-        {
-            "sensor_id": "sensor_test_1",
-            "timestamp": "2022-09-20T17:30:00",
-            "humidity": 49.5,
-            "pressure": 383.25,
-            "temperature": 22.2
-        },
-        {
-            "sensor_id": "sensor_test_2",
-            "timestamp": "2022-09-21T17:30:00",
-            "humidity": 4.5,
-            "pressure": 873.25,
-            "temperature": 77
-        }
-    ], headers=headers)
-
     
-    
-    response = test_client.put('/v1/data/1', json=[
-        {
-            "sensor_id": "sensor_test_00",
-            "timestamp": "2022-09-20T17:30:00",
-            "humidity": 49.5,
-            "pressure": 383.25,
-            "temperature": 22.444
-        }
-    ], headers=headers)
+    response = test_client.post('/v1/data', headers=headers)
+    params = {
+        'humidity':'122',
+        'temperature' :'32',
+        'pressure' :'232' 
+    }
+    response = test_client.put('/v1/data/1', query_string=params, headers=headers)
 
     assert response.status_code == 201  
     data = response.get_json()
@@ -45,16 +25,13 @@ def test_update_sensor_data_incorrect_id(test_client, auth_token):
     headers = {
         'Authorization': f'Bearer {auth_token}'
     }
-    
-    response = test_client.put('/v1/data/500', json=[
-        {
-            "sensor_id": "sensor_test_00",
-            "timestamp": "2022-09-20T17:30:00",
-            "humidity": 49.5,
-            "pressure": 383.25,
-            "temperature": 22.444
-        }
-    ], headers=headers)
+    params = {
+        'humidity':'122',
+        'temperature' :'32',
+        'pressure' :'232' 
+    }
+    response = test_client.put('/v1/data/500', 
+    query_string=params, headers=headers)
 
     assert response.status_code == 404  
     data = response.get_json()
